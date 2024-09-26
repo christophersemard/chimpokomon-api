@@ -41,9 +41,11 @@
         "symfony/ux-turbo": "^2.20",
         "symfony/validator": "7.1.*",
         "symfony/web-link": "7.1.*",
+        "symfony/webpack-encore-bundle": "^2.1",
         "symfony/yaml": "7.1.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "vich/uploader-bundle": "^2.4"
     },
     "config": {
         "allow-plugins": {
@@ -96,6 +98,8 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.6",
+        "fzaninotto/faker": "^1.5",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "7.1.*",
         "symfony/css-selector": "7.1.*",
