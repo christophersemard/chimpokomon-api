@@ -3,73 +3,115 @@
 namespace App\Controller;
 
 use App\Entity\Chimpokomon;
+use App\Repository\ChimpokodexRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ChimpokomonRepository;
+use PHPUnit\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ChimpokomonController extends AbstractController
 {
-    #[Route('/chimpokomon', name: 'app_chimpokomon_getAll')]
+    #[Route('/chimpokomons', name: 'app_chimpokomon_getAll', methods: ['GET'])]
     public function getAllChimpokomons(
         ChimpokomonRepository $chimpokomonRepository,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        TagAwareCacheInterface $cache
     ): JsonResponse {
-        $jsonChimpokos = $serializer->serialize($chimpokomonRepository->findStatusOn(), 'json', ["groups" => "chimpokomon"]);
-        return new JsonResponse($jsonChimpokos, Response::HTTP_OK, [], true);
+
+        $idCache = 'chimpokomon.all';
+        $cachedChimpokos = $cache->get($idCache, function (ItemInterface $item) use ($chimpokomonRepository, $serializer): string {
+            $item->tag('chimpokomonCache');
+            $chimpokoList = $serializer->serialize($chimpokomonRepository->findStatusOn(), 'json', ["groups" => "chimpokomon"]);
+            return $chimpokoList;
+        });
+
+
+        return new JsonResponse($cachedChimpokos, Response::HTTP_OK, [], true);
         // return $this->json($jsonChimpokos);
     }
 
 
-    #[Route('/chimpokomon/{chimpokomon}', name: 'app_chimpokomon_get', methods: ['GET'])]
+    #[Route('/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_get', methods: ['GET'])]
     public function getChimpokomon(
-        Chimpokomon $chimpokomon
+        Chimpokomon $chimpokomon,
+        SerializerInterface $serializer
     ): JsonResponse {
-        return $this->json($chimpokomon);
+        $jsonChimpokomon = $serializer->serialize($chimpokomon, 'json', ["groups" => "chimpokomon"]);
+        return new JsonResponse($jsonChimpokomon, Response::HTTP_OK, [], true);
     }
 
-
-
-    #[Route('/chimpokomon', name: 'app_chimpokon_create', methods: ["POST"])]
+    #[Route('/chimpokomons', name: 'app_chimpokon_create', methods: ["POST"])]
     public function createChimpokomon(
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        TagAwareCacheInterface $cache,
+        SerializerInterface $serializer,
+        ChimpokodexRepository $chimpokodexRepository
     ): JsonResponse {
         $requestData = $request->toArray();
-        $newChimpo = new Chimpokomon();
-        $newChimpo->setName($requestData["name"]);
+        $newChimpo = $serializer->deserialize($request->getContent(), Chimpokomon::class, 'json');
         $newChimpo->setStatus('on');
+        $chimpokedex = $chimpokodexRepository->find($requestData['chimpokodex']);
+        $newChimpo->setChimpokodex($chimpokedex);
+
+        // check les pv max 
+        if ($newChimpo->getPvMax() > $chimpokedex->getPvMax()) {
+            $newChimpo->setPvMax($chimpokedex->getPvMax());
+        }
+
         $entityManager->persist($newChimpo);
         $entityManager->flush();
-        return $this->json($newChimpo);
-    }
 
-    #[Route('/chimpokomon/{chimpokomon}', name: 'app_chimpokomon_update', methods: ['PUT', 'PATCH'])]
+        $cache->invalidateTags(['chimpokomonCache']);
+
+        $location = $this->generateUrl('app_chimpokomon_get', ['chimpokomon' => $newChimpo->getId()], 0);
+
+        $chimpoData = $serializer->serialize($newChimpo, 'json', ["groups" => "chimpokomon"]);
+
+        // return $this->json($newChimpo);
+        return new JsonResponse($chimpoData, Response::HTTP_CREATED, ["Location" => $location], true);
+    }
+    #[Route('/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_update', methods: ['PUT', 'PATCH'])]
     public function updateChimpokomon(
         Chimpokomon $chimpokomon,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        TagAwareCacheInterface $cache,
+        SerializerInterface $serializer,
     ): JsonResponse {
 
-
-        $chimpokomon->setName($request->toArray()['name'] ?? $chimpokomon->getName());
-        $entityManager->persist($chimpokomon);
+        $requestData = $request->toArray();
+        $newChimpo = $serializer->deserialize($request->getContent(), Chimpokomon::class, "json", [AbstractNormalizer::OBJECT_TO_POPULATE => $chimpokomon]);
+        $newChimpo->setStatus('on');
+        $chimpokodex = $newChimpo->getChimpokodex();
+        if ($requestData["pvMax"] > $chimpokodex->getPvMax()) {
+            $newChimpo->setPvMax($chimpokodex->getPvMax());
+        }
+        $entityManager->persist($newChimpo);
         $entityManager->flush();
-        return $this->json($chimpokomon);
+        $cache->invalidateTags(['chimpokomonCache']);
+
+
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
     }
 
 
 
 
-    #[Route('/chimpokomon/{chimpokomon}', name: 'app_chimpokomon_delete', methods: ['DELETE'])]
+    #[Route('/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_delete', methods: ['DELETE'])]
     public function deleteChimpokomon(
         Chimpokomon $chimpokomon,
         EntityManagerInterface $entityManager,
-        Request $request
+        Request $request,
+        TagAwareCacheInterface $cache
     ): JsonResponse {
         $force = $request->toArray()["force"] ?? false;
         if ($force) {
@@ -81,6 +123,9 @@ class ChimpokomonController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->json(null);
+        $cache->invalidateTags(['chimpokomonCache']);
+
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

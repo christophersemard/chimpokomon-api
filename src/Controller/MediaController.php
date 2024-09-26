@@ -37,17 +37,12 @@ class MediaController extends AbstractController
       new JsonResponse(null, JsonResponse::HTTP_NOT_FOUND);
   }
 
-
-
-
-
-
-
   #[Route('/media', name: 'app_media_create', methods: ['POST'])]
   public function createMedia(
     Request $request,
     EntityManagerInterface $entityManager,
-    SerializerInterface $serializer
+    SerializerInterface $serializer,
+    UrlGeneratorInterface $urlGenerator
   ): JsonResponse {
 
     $media = new Media();
@@ -60,10 +55,9 @@ class MediaController extends AbstractController
     $entityManager->persist($media);
     $entityManager->flush();
 
-
     $jsonFile = $serializer->serialize($media, 'json');
 
-
-    return new JsonResponse($jsonFile, JsonResponse::HTTP_CREATED, [], true);
+    $location = $urlGenerator->generate("app_media_get", ["media" => $media->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+    return new JsonResponse($jsonFile, JsonResponse::HTTP_CREATED, ["Location" => $location], true);
   }
 }

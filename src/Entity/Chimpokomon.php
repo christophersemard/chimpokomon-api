@@ -12,12 +12,12 @@ class Chimpokomon
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['chimpokomon'])]
+    #[Groups(['chimpokomon', 'chimpokodex'])]
 
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['chimpokomon'])]
+    #[Groups(['chimpokomon', 'chimpokodex'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 25)]
@@ -28,7 +28,7 @@ class Chimpokomon
     private ?int $pv = null;
 
     #[ORM\Column]
-    #[Groups(['chimpokomon'])]
+    #[Groups(['chimpokomon', 'chimpokodex'])]
     private ?int $pvMax = null;
 
     #[ORM\ManyToOne(inversedBy: 'chimpokomons')]
