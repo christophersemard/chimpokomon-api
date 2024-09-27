@@ -14,13 +14,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class MediaController extends AbstractController
 {
 
-  #[Route('/', name: 'app_media')]
+  #[Route('/api/', name: 'app_media')]
   public function index(): JsonResponse
   {
     return $this->json([]);
   }
 
-  #[Route('/media/{media}', name: 'app_media_get', methods: ['GET'])]
+  #[Route('/api/media/{media}', name: 'app_media_get', methods: ['GET'])]
   public function getMedia(
     Media $media,
     SerializerInterface $serializer,
@@ -37,7 +37,7 @@ class MediaController extends AbstractController
       new JsonResponse(null, JsonResponse::HTTP_NOT_FOUND);
   }
 
-  #[Route('/media', name: 'app_media_create', methods: ['POST'])]
+  #[Route('/api/media', name: 'app_media_create', methods: ['POST'])]
   public function createMedia(
     Request $request,
     EntityManagerInterface $entityManager,

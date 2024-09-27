@@ -2,29 +2,32 @@
 
 namespace App\DataFixtures;
 
+use Faker\Factory;
+use App\Entity\User;
+use Faker\Generator;
+use App\Entity\Persona;
 use App\Entity\Chimpokodex;
 use App\Entity\Chimpokomon;
-use Doctrine\Bundle\FixturesBundle\Fixture;
+use App\Entity\Chimpokofood;
 use Doctrine\Persistence\ObjectManager;
-use Faker\Factory;
-use Faker\Generator;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
     private Generator $faker;
+    private $userPasswordHasher;
 
 
-    public function __construct()
+    public function __construct(UserPasswordHasherInterface $userPasswordHasher)
     {
+        $this->userPasswordHasher = $userPasswordHasher;
         $this->faker = Factory::create('fr_FR');
     }
 
     public function load(ObjectManager $manager): void
     {
 
-
-
-        // $product = new Product();
         $chimpokoName = ["Chaussure", "SuperChimpokomon", "ChimpokoMegamon", "Jambon"];
         $chimpokodexEntries = [];
         $maxStat = 255;
@@ -62,7 +65,52 @@ class AppFixtures extends Fixture
             $manager->persist($chimpokomon);
         }
 
-        // $manager->persist($product);
+
+        for ($i = 0; $i < 10; $i++) {
+            // Créer des utilisateurs
+            $dateNow = new \DateTimeImmutable();
+            $publicUser = new User();
+            $publicUser->setUsername($this->faker->userName());
+            $publicUser->setRoles(["ROLE_PUBLIC"]);
+            $publicUser->setName($this->faker->name());
+            $publicUser->setPhone($this->faker->phoneNumber());
+            $publicUser->setCreatedAt($dateNow);
+            $publicUser->setUpdatedAt($dateNow);
+            $publicUser->setStatus("on");
+            $publicUser->setPassword($this->userPasswordHasher->hashPassword($publicUser, "password"));
+
+            $persona = new Persona();
+            $persona->setHeight($this->faker->numberBetween(100, 200));
+            $persona->setGender("Test");
+            $persona->setStatus("on");
+            $persona->setCreatedAt($dateNow);
+            $persona->setUpdatedAt($dateNow);
+            $persona->setBirthAt($this->faker->dateTimeBetween('-50 years', '-18 years'));
+            $persona->setUser($publicUser);
+
+            $manager->persist($persona);
+            $manager->persist($publicUser);
+        }
+
+
+        $food = new Chimpokofood();
+        $food->setName("Pomme");
+        $food->setStatus("on");
+        $food->setAmount(10);
+
+        $food2 = new Chimpokofood();
+        $food2->setName("Fraise");
+        $food2->setStatus("on");
+        $food2->setAmount(2);
+        $food3 = new Chimpokofood();
+        $food3->setName("Banane");
+        $food3->setStatus("on");
+        $food3->setAmount(5);
+
+        $manager->persist($food);
+        $manager->persist($food2);
+        $manager->persist($food3);
+
         $manager->flush();
     }
 }

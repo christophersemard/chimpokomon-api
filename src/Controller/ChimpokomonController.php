@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ChimpokomonController extends AbstractController
 {
-    #[Route('/chimpokomons', name: 'app_chimpokomon_getAll', methods: ['GET'])]
+    #[Route('/api/chimpokomons', name: 'app_chimpokomon_getAll', methods: ['GET'])]
     public function getAllChimpokomons(
         ChimpokomonRepository $chimpokomonRepository,
         SerializerInterface $serializer,
@@ -39,7 +39,7 @@ class ChimpokomonController extends AbstractController
     }
 
 
-    #[Route('/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_get', methods: ['GET'])]
+    #[Route('/api/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_get', methods: ['GET'])]
     public function getChimpokomon(
         Chimpokomon $chimpokomon,
         SerializerInterface $serializer
@@ -48,7 +48,7 @@ class ChimpokomonController extends AbstractController
         return new JsonResponse($jsonChimpokomon, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/chimpokomons', name: 'app_chimpokon_create', methods: ["POST"])]
+    #[Route('/api/chimpokomons', name: 'app_chimpokon_create', methods: ["POST"])]
     public function createChimpokomon(
         Request $request,
         EntityManagerInterface $entityManager,
@@ -79,7 +79,7 @@ class ChimpokomonController extends AbstractController
         // return $this->json($newChimpo);
         return new JsonResponse($chimpoData, Response::HTTP_CREATED, ["Location" => $location], true);
     }
-    #[Route('/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_update', methods: ['PUT', 'PATCH'])]
+    #[Route('/api/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_update', methods: ['PUT', 'PATCH'])]
     public function updateChimpokomon(
         Chimpokomon $chimpokomon,
         Request $request,
@@ -106,7 +106,7 @@ class ChimpokomonController extends AbstractController
 
 
 
-    #[Route('/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_delete', methods: ['DELETE'])]
+    #[Route('/api/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_delete', methods: ['DELETE'])]
     public function deleteChimpokomon(
         Chimpokomon $chimpokomon,
         EntityManagerInterface $entityManager,
