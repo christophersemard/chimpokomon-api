@@ -76,6 +76,8 @@ Les routes métier sont protégées par JWT. La documentation donne le détail d
 
 Le dépôt représente un travail de formation conservé comme démonstration technique. Il n'est pas destiné à la production : la couverture de tests reste à compléter, le schéma est initialisé localement sans migrations versionnées et les valeurs du `.env` sont uniquement des exemples de développement.
 
+> Documentation de projet revue en août 2026.
+
 ## Auteur
 
 Projet réalisé par [Christopher Semard](https://github.com/christophersemard) dans le cadre de sa formation en développement web.
