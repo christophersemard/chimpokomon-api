@@ -6,7 +6,6 @@ use App\Entity\Chimpokomon;
 use App\Repository\ChimpokodexRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ChimpokomonRepository;
-use PHPUnit\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,7 +34,6 @@ class ChimpokomonController extends AbstractController
 
 
         return new JsonResponse($cachedChimpokos, Response::HTTP_OK, [], true);
-        // return $this->json($jsonChimpokos);
     }
 
 
@@ -76,7 +74,6 @@ class ChimpokomonController extends AbstractController
 
         $chimpoData = $serializer->serialize($newChimpo, 'json', ["groups" => "chimpokomon"]);
 
-        // return $this->json($newChimpo);
         return new JsonResponse($chimpoData, Response::HTTP_CREATED, ["Location" => $location], true);
     }
     #[Route('/api/chimpokomons/{chimpokomon}', name: 'app_chimpokomon_update', methods: ['PUT', 'PATCH'])]

@@ -2,13 +2,10 @@
 
 namespace App\Controller;
 
-use PHPUnit\Util\Json;
 use App\Entity\Chimpokodex;
 use OpenApi\Annotations as OA;
-use Lcobucci\JWT\Validation\Validator;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ChimpokodexRepository;
-use App\Repository\ChimpokomonRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -91,7 +88,6 @@ class ChimpokodexController extends AbstractController
     $newChimpo->setPvMax(random_int($pvMin, 151));
 
     $errors = $validator->validate($newChimpo);
-    // dd($errors);
     if (count($errors) > 0) {
       $messages = [];
       foreach ($errors as $error) {

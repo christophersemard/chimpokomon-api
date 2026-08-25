@@ -47,7 +47,6 @@ class MediaController extends AbstractController
 
     $media = new Media();
     $file = $request->files->get('media');
-    // dd($file);
     $media->setFile($file);
     $media->setPublicPath("uploads");
     $media->setDisplayName($file->getClientOriginalName());

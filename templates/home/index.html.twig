@@ -1,12 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil
-{% endblock %}
+{% block title %}Chimpokomon API{% endblock %}
 
 {% block body %}
 
-<h1 class="text-3xl font-bold underline">
-  Hello world!
-</h1>
+<main class="mx-auto max-w-3xl px-6 py-16">
+  <p class="mb-3 text-sm font-semibold uppercase tracking-wider text-emerald-600">Symfony 7 · API REST</p>
+  <h1 class="text-4xl font-bold text-slate-900">Chimpokomon API</h1>
+  <p class="mt-5 text-lg text-slate-600">
+    Une API pédagogique pour gérer un bestiaire, ses créatures, leurs statistiques et leurs médias.
+  </p>
+  <a class="mt-8 inline-flex rounded-lg bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-700" href="{{ path('app.swagger_ui') }}">
+    Consulter la documentation API
+  </a>
+</main>
 
 {% endblock %}

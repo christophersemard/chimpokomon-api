@@ -2,7 +2,7 @@ nelmio_api_doc:
     documentation:
         info:
             title: ChimpokoMon
-            description: l'API du site
+            description: API pédagogique de gestion d'un bestiaire de Chimpokomons
             version: 2.0.0
         paths:
             /api/login_check:
@@ -37,10 +37,10 @@ nelmio_api_doc:
                     properties:
                         username:
                             type: string
-                            default: admin
+                            example: utilisateur
                         password:
                             type: string
-                            default: password
+                            format: password
             securitySchemes:
                 bearerAuth:
                     type: apiKey
